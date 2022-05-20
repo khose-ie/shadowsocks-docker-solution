@@ -1,0 +1,13 @@
+name: "Upload kcptun image"
+
+runs:
+  using: "composite"
+
+  steps:
+  - name: Upload kcptun image
+    uses: ./.github/workflows/actions/publish-dockerhub/upload-common
+    with:
+      app: shadowsocks
+      entrypoints: ss-local
+      version-bash: --help  | grep shadowsocks-libev | awk '{ print $2 }'
+      path: ./images/shadowsocks

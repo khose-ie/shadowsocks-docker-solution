@@ -1,0 +1,24 @@
+name: "Upload artifact to GitHub release"
+
+runs:
+  using: "composite"
+
+  steps:
+  - name: Pack artifact
+    run: |
+      mkdir -p github-artifacts/${{ env.ARTIFACT }}
+      cp config.env github-artifacts/${{ env.ARTIFACT }}
+      cp shadowsocks-server-compose.yaml github-artifacts/${{ env.ARTIFACT }}
+      cp shadowsocks-client-compose.yaml github-artifacts/${{ env.ARTIFACT }}
+      tar -zcmf github-artifacts/${{ env.ARTIFACT }}.tar.gz -Cgithub-artifacts/ ${{ env.ARTIFACT }}
+    shell: bash
+
+  - name: Upload artifact
+    uses: actions/upload-release-asset@v1
+    env:
+      GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
+    with:
+      upload_url: ${{ env.RELEASE_URL }} 
+      asset_path: ./github-artifacts/${{ env.ARTIFACT }}.tar.gz
+      asset_name: ${{ env.ARTIFACT }}.tar.gz
+      asset_content_type: application/gzip

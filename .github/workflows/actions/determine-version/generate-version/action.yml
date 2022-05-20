@@ -1,0 +1,24 @@
+name: "Generate version"
+
+runs:
+  using: "composite"
+
+  steps:
+  - name: Checkout full depth code
+    uses: actions/checkout@v3
+    with:
+      ref: ${{ github.head_ref }}
+      fetch-depth: 0
+
+  - name: Generate software version with git history
+    uses: codacy/git-version@2.5.4
+    id: git-version
+    with:
+      prefix: ${{ env.PHASE }}-
+
+  - name: Write version into GitHub ENV
+    run: |
+      version=${{ steps.git-version.outputs.version }}
+      prefix=${{ env.PHASE }}-
+      echo "VERSION=${version#*${prefix}}" >> ${GITHUB_ENV}
+    shell: bash

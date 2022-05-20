@@ -1,0 +1,13 @@
+name: "Upload privoxy image"
+
+runs:
+  using: "composite"
+
+  steps:
+  - name: Upload privoxy image
+    uses: ./.github/workflows/actions/publish-dockerhub/upload-common
+    with:
+      app: privoxy
+      entrypoints: privoxy
+      version-bash: --version | awk '{ print $3 }'
+      path: ./images/privoxy

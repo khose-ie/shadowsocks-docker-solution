@@ -1,0 +1,44 @@
+name: "Common upload docker image action"
+inputs:
+  app:
+    description: 'app name'
+  entrypoints:
+    description: 'app entrypoint path'
+  version-bash:
+    description: 'get app version bash'
+  path:
+    description: 'image file path'
+
+runs:
+  using: "composite"
+
+  steps:
+  - name: Get docker style version
+    id: version
+    run: |
+      docker build -t ${{ inputs.app }}:test ${{ inputs.path }}
+      echo "::set-output name=appversion::$(docker run --entrypoint "${{ inputs.entrypoints }}" ${{ inputs.app }}:test ${{ inputs.version-bash }})"
+      echo "::set-output name=osversion::$(docker run --entrypoint "cat" ${{ inputs.app }}:test /etc/alpine-release | awk '{ print $1 }')"
+    shell: bash
+
+  - name: Build and push to Docker Hub
+    uses: docker/build-push-action@v2
+    with:
+      push: true
+      tags: ${{ env.REPOSITORY }}/${{ inputs.app }}:${{ env.VERSION }}-${{ inputs.app }}${{ steps.version.outputs.appversion }}-alpine${{ steps.version.outputs.osversion }}
+      context: ${{ inputs.path }}
+
+  - name: Build and push latest to Docker Hub
+    uses: docker/build-push-action@v2
+    with:
+      push: true
+      tags: ${{ env.REPOSITORY }}/${{ inputs.app }}:latest
+      context: ${{ inputs.path }}
+
+  - name: Update docker repo description
+    uses: peter-evans/dockerhub-description@v2
+    with:
+      username: ${{ env.DOCKERHUB_USERNAME }}
+      password: ${{ env.DOCKERHUB_PASSWORD }}
+      repository: ${{ env.REPOSITORY }}/${{ inputs.app }}
+      readme-filepath: ${{ inputs.path }}/README.md

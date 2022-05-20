@@ -1,0 +1,24 @@
+name: "Create a GitHub release"
+
+runs:
+  using: "composite"
+
+  steps:
+  - name: checkout code
+    uses: actions/checkout@v3
+
+  - name: Create GitHub release
+    id: create-release
+    uses: actions/create-release@v1
+    env:
+      GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
+    with:
+      tag_name: ${{ env.PHASE }}-${{ env.VERSION }}
+      release_name: Release ${{ env.VERSION }}
+      body_path: ./.github/workflows/release-notes/release-notes.md
+      draft: false
+      prerelease: false
+
+  - name: Write release URL into GitHub ENV
+    run: echo "RELEASE_URL=${{ steps.create-release.outputs.upload_url }}" >> ${GITHUB_ENV}
+    shell: bash

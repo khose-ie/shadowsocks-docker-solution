@@ -1,0 +1,11 @@
+name: "Commit version git tag"
+
+runs:
+  using: "composite"
+
+  steps:
+  - name: Push tag
+    uses: tvdias/github-tagger@v0.0.1
+    with:
+      repo-token: ${{ env.GITHUB_TOKEN }}
+      tag: ${{ env.PHASE }}-${{ env.VERSION }}

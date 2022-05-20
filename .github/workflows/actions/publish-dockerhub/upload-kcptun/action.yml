@@ -1,0 +1,13 @@
+name: "Upload kcptun image"
+
+runs:
+  using: "composite"
+
+  steps:
+  - name: Upload kcptun image
+    uses: ./.github/workflows/actions/publish-dockerhub/upload-common
+    with:
+      app: kcptun
+      entrypoints: server
+      version-bash: --version | awk '{ print $3 }'
+      path: ./images/kcptun
