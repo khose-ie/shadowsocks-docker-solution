@@ -1,0 +1,36 @@
+version: "3"
+services:
+    shadowsocks:
+        image: hyklose/shadowsocks:latest
+        container_name: shadowsocks-client
+        restart: unless-stopped
+        entrypoint: ssclient
+        env_file:
+            - config.env
+        networks:
+            - shadowsocks
+
+    kcptun:
+        image: hyklose/kcptun:latest
+        container_name: shadowsocks-kcptun
+        restart: unless-stopped
+        entrypoint: kcpclient
+        env_file:
+            - config.env
+        networks:
+            - shadowsocks
+
+    privoxy:
+        image: hyklose/privoxy:latest
+        container_name: shadowsocks-privoxy
+        restart: unless-stopped
+        env_file:
+            - config.env
+        networks:
+            - shadowsocks
+        ports:
+            - "1080:1080"
+
+networks:
+    shadowsocks:
+        name: shadowsocks
